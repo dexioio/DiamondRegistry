@@ -1,5 +1,6 @@
 pragma solidity ^0.4.18;
 
+import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 /**
  * @title SafeMath
@@ -282,24 +283,26 @@ contract ERC721Token is ERC721 {
 contract DetailedERC721 is ERC721 {
   function name() public view returns (string _name);
   function symbol() public view returns (string _symbol);
-  function implementsERC721() public pure returns (bool);
-  function setTokenMetadata(uint256 _tokenId, string _metadata) public;
   function tokenMetadata(uint256 _tokenId) public view returns (string infoUrl);
   function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _tokenId);
 }
 
 
 /**
- * @title Detailed ERC721 Token
- * This implementation includes all the required and optional functionality of the ERC721 standard
+ * @title Our specific diamond registry implementation of the detailed ERC721 interface.
  * @dev see https://github.com/ethereum/eips/issues/721
  */
-contract DetailedERC721Token is DetailedERC721, ERC721Token {
+contract DexioRegistry is DetailedERC721, ERC721Token {
+  using strings for *;
+    
   // Token name
-  string private _name;
+  string private _name = "Dexio";
 
   // Token symbol
-  string private _symbol;
+  string private _symbol = "DEX";
+
+  // Identifier for the next token to mint.
+  uint256 private _nextTokenId = 0;
 
   // Token metadata
   mapping (uint256 => string) private _metadata;
@@ -307,12 +310,11 @@ contract DetailedERC721Token is DetailedERC721, ERC721Token {
   // Event triggered every time a token metadata gets updated
   event MetadataUpdated(address _owner, uint256 _tokenId, string _newMetadata);
 
-  /**
-    * @dev Constructor function
-    */
-  function DetailedERC721Token(string name, string symbol) public {
-    _name = name;
-    _symbol = symbol;
+  function mint(string _newMetadata) public {
+    super._mint(msg.sender, _nextTokenId);
+    _metadata[_nextTokenId] = _newMetadata;
+    MetadataUpdated(msg.sender, _nextTokenId, _newMetadata);
+    _nextTokenId++;
   }
 
   /**
@@ -329,14 +331,6 @@ contract DetailedERC721Token is DetailedERC721, ERC721Token {
   */
   function symbol() public view returns (string) {
     return _symbol;
-  }
-
-  /**
-  * @dev Ensures this contract is an ERC721 implementation
-  * @return true to ensure this contract implements ERC721 functionality
-  */
-  function implementsERC721() public pure returns (bool) {
-    return true;
   }
 
   /**
@@ -360,22 +354,15 @@ contract DetailedERC721Token is DetailedERC721, ERC721Token {
   }
 
   /**
-  * @dev Sets the metadata of the given token ID
+  * @dev Updates the metadata of the given token ID
   * @param _tokenId uint256 ID of the token to set the metadata of
   * @param _newMetadata string representing the new metadata to be set
   */
-  function setTokenMetadata(uint256 _tokenId, string _newMetadata) public onlyOwnerOf(_tokenId) {
-    _metadata[_tokenId] = _newMetadata;
-    MetadataUpdated(msg.sender, _tokenId, _newMetadata);
+  function addTokenMetadata(uint256 _tokenId, string _newMetadata) public onlyOwnerOf(_tokenId) {
+    string memory oldMetadata = _metadata[_tokenId];
+    string memory withDelimiter = oldMetadata.toSlice().concat(";".toSlice());
+    string memory withNewData = withDelimiter.toSlice().concat(_newMetadata.toSlice());
+    _metadata[_tokenId] = withNewData;
+    MetadataUpdated(msg.sender, _tokenId, withNewData);
   }
-}
-
-
-contract DexioRegistry is DetailedERC721Token {
-
-	// Token name
-	string private _name = "Dexio";
-
-	// Token symbol
-	string private _symbol = "DEX";
 }

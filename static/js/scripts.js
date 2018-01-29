@@ -10,7 +10,7 @@ var DexioRegistryContract = web3.eth.contract([
 		"name": "name",
 		"outputs": [
 			{
-				"name": "_name",
+				"name": "",
 				"type": "string"
 			}
 		],
@@ -19,35 +19,22 @@ var DexioRegistryContract = web3.eth.contract([
 		"type": "function"
 	},
 	{
-		"constant": false,
+		"constant": true,
 		"inputs": [
 			{
-				"name": "_to",
+				"name": "_owner",
 				"type": "address"
-			},
-			{
-				"name": "_tokenId",
-				"type": "uint256"
 			}
 		],
-		"name": "approve",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "implementsERC721",
+		"name": "tokensOf",
 		"outputs": [
 			{
 				"name": "",
-				"type": "bool"
+				"type": "uint256[]"
 			}
 		],
 		"payable": false,
-		"stateMutability": "pure",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -65,45 +52,8 @@ var DexioRegistryContract = web3.eth.contract([
 		"name": "tokenOfOwnerByIndex",
 		"outputs": [
 			{
-				"name": "_tokenId",
+				"name": "",
 				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_tokenId",
-				"type": "uint256"
-			},
-			{
-				"name": "_metadata",
-				"type": "string"
-			}
-		],
-		"name": "setTokenMetadata",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "ownerOf",
-		"outputs": [
-			{
-				"name": "_owner",
-				"type": "address"
 			}
 		],
 		"payable": false,
@@ -121,8 +71,74 @@ var DexioRegistryContract = web3.eth.contract([
 		"name": "tokenMetadata",
 		"outputs": [
 			{
-				"name": "infoUrl",
+				"name": "",
 				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "approvedFor",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "ownerOf",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -140,7 +156,7 @@ var DexioRegistryContract = web3.eth.contract([
 		"name": "balanceOf",
 		"outputs": [
 			{
-				"name": "_balance",
+				"name": "",
 				"type": "uint256"
 			}
 		],
@@ -149,18 +165,26 @@ var DexioRegistryContract = web3.eth.contract([
 		"type": "function"
 	},
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "symbol",
-		"outputs": [
+		"anonymous": false,
+		"inputs": [
 			{
-				"name": "_symbol",
-				"type": "string"
+				"indexed": true,
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_approved",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_tokenId",
+				"type": "uint256"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
+		"name": "Approval",
+		"type": "event"
 	},
 	{
 		"constant": false,
@@ -181,18 +205,26 @@ var DexioRegistryContract = web3.eth.contract([
 		"type": "function"
 	},
 	{
-		"constant": false,
+		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
 				"name": "_tokenId",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_newMetadata",
+				"type": "string"
 			}
 		],
-		"name": "takeOwnership",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
+		"name": "MetadataUpdated",
+		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -217,31 +249,81 @@ var DexioRegistryContract = web3.eth.contract([
 		"type": "event"
 	},
 	{
-		"anonymous": false,
+		"constant": false,
 		"inputs": [
 			{
-				"indexed": true,
-				"name": "_owner",
+				"name": "_tokenId",
+				"type": "uint256"
+			},
+			{
+				"name": "_newMetadata",
+				"type": "string"
+			}
+		],
+		"name": "addTokenMetadata",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_to",
 				"type": "address"
 			},
 			{
-				"indexed": true,
-				"name": "_approved",
-				"type": "address"
-			},
-			{
-				"indexed": false,
 				"name": "_tokenId",
 				"type": "uint256"
 			}
 		],
-		"name": "Approval",
-		"type": "event"
+		"name": "approve",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "takeOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_newMetadata",
+				"type": "string"
+			}
+		],
+		"name": "mint",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
 	}
 ]);
-var DexioRegistry = DexioRegistryContract.at("0xcd3f8a86d7d84c6b3c95a365683f49a2b373251a");
+var DexioRegistry = DexioRegistryContract.at("0xb84a3410b755651709dd55d33537cf84d4b67481");
 console.log("Successfully loaded connection to " + DexioRegistry.name() + " - " + DexioRegistry.symbol());
 
+// DexioRegistry.addTokenMetadata(1, "" + web3.eth.accounts[1], { from: web3.eth.accounts[1], gas: 300000 });
+DexioRegistry.transfer("0xb84a3410b755651709dd55d33537cf84d4b67481", 0, { from: web3.eth.accounts[0], gas: 300000 });
+
 $("#createButton").click(function() {
-	DexioRegistry._mint(web3.eth.accounts[0], Math.floor(Math.random() * Math.floor(1000000000)));
+	console.log(web3.eth.accounts[0]);
+	DexioRegistry.mint(web3.eth.accounts[0], "" + Math.floor(Math.random() * Math.floor(1000)), { from: web3.eth.accounts[0], gas: 300000 });
 });
